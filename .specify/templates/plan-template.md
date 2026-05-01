@@ -31,7 +31,16 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+- Stack compliance: Confirms Java Spring Boot + PostgreSQL backend and React +
+  Tailwind + MUI frontend (or documents approved constitutional exception).
+- Contract-first design: Confirms API contracts are versioned and all breaking changes
+  include migration notes.
+- Test-first readiness: Confirms unit, integration, and critical end-to-end tests are
+  planned before implementation.
+- Security controls: Confirms authN/authZ, input validation, secret handling, and
+  sensitive-data protections are explicitly designed.
+- Observability and operations: Confirms logs, metrics, health checks, smoke tests,
+  and rollback path are defined for Render deployment.
 
 ## Project Structure
 

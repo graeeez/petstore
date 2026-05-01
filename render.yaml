@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: petstore-backend
+    runtime: java
+    buildCommand: cd backend && mvn clean package -DskipTests
+    startCommand: cd backend && java -jar target/petstore-backend-1.0.0.jar --spring.profiles.active=render
+    envVars:
+      - key: DATABASE_URL
+        scope: build,runtime
+        value: ${DATABASE_URL}
+      - key: PORT
+        scope: build,runtime
+        value: 8080
+      - key: JAVA_OPTS
+        scope: build,runtime
+        value: "-Xmx512m -Xms256m"
+
+  - type: web
+    name: petstore-frontend
+    runtime: node
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: npm serve dist
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        scope: build
+        value: /pastoral
+
+databases:
+  - name: petstore_prod
+    engine: postgres
+    version: 14
+    plan: starter
+    ipAllowList: []
+
+envVars:
+  - key: NODE_ENV
+    scope: build,runtime
+    value: production

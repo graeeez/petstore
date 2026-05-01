@@ -95,6 +95,19 @@
 - **FR-006**: System MUST authenticate users via [NEEDS CLARIFICATION: auth method not specified - email/password, SSO, OAuth?]
 - **FR-007**: System MUST retain user data for [NEEDS CLARIFICATION: retention period not specified]
 
+### Constitution Alignment Requirements
+
+- **CA-001**: Specification MUST identify impacted e-commerce domains (catalog,
+  cart, checkout, orders, inventory, accounts, payments).
+- **CA-002**: Specification MUST define API contract expectations and note any
+  backward-incompatible behavior.
+- **CA-003**: Specification MUST define required unit, integration, and critical
+  end-to-end test outcomes for acceptance.
+- **CA-004**: Specification MUST list security and privacy implications, including
+  authN/authZ and data handling impact.
+- **CA-005**: Specification MUST define observability and deployment-readiness
+  expectations, including Render operational checks.
+
 ### Key Entities *(include if feature involves data)*
 
 - **[Entity 1]**: [What it represents, key attributes without implementation]

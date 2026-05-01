@@ -1,50 +1,111 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: template (unversioned) -> 1.0.0
+- Modified principles:
+  - Principle 1 placeholder -> I. Domain-Centric Commerce Architecture
+  - Principle 2 placeholder -> II. Contract-First API and UI Consistency
+  - Principle 3 placeholder -> III. Test-First Delivery Gates (NON-NEGOTIABLE)
+  - Principle 4 placeholder -> IV. Security and Data Protection by Default
+  - Principle 5 placeholder -> V. Observability and Operational Readiness
+- Added sections:
+  - Technology and Platform Constraints
+  - Delivery Workflow and Quality Gates
+- Removed sections:
+  - None
+- Templates requiring updates:
+  - UPDATED: .specify/templates/plan-template.md
+  - UPDATED: .specify/templates/spec-template.md
+  - UPDATED: .specify/templates/tasks-template.md
+  - PENDING: .specify/templates/commands/*.md (directory not present)
+- Follow-up TODOs:
+  - None
+-->
+
+# Petstore Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Domain-Centric Commerce Architecture
+Every feature MUST map to a clear e-commerce domain capability for pet sales
+(catalog, search, cart, checkout, order management, inventory, customer account, or
+payment). Backend services MUST be implemented in Java Spring Boot and persist
+transactional data in PostgreSQL. Frontend experiences MUST be implemented in React
+with Tailwind CSS and MUI. Cross-domain coupling MUST be minimized through explicit
+API contracts and well-defined module boundaries.
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Rationale: Strong domain boundaries reduce regression risk, simplify scaling, and keep
+the stack coherent for maintainable product delivery.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+### II. Contract-First API and UI Consistency
+All backend capabilities exposed to clients MUST be defined as versioned HTTP API
+contracts before implementation. Breaking contract changes MUST include migration
+notes and client impact assessment. Frontend flows for browsing pets (dogs, cats,
+birds, fishes), cart operations, and checkout MUST consume these contracts without
+bypassing backend validation or business rules.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+Rationale: Contract-first delivery keeps frontend and backend aligned, prevents drift,
+and supports safe iteration across teams.
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+### III. Test-First Delivery Gates (NON-NEGOTIABLE)
+Work MUST follow a test-first sequence for all production changes: define acceptance
+criteria, add or update automated tests, confirm failing state, then implement. Each
+user story MUST include unit tests and integration tests for impacted behavior.
+Critical purchase paths (catalog to checkout to order confirmation) MUST have
+end-to-end coverage before release.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Rationale: Test-first gates preserve release confidence for revenue-critical commerce
+flows and reduce defect escape to production.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### IV. Security and Data Protection by Default
+Authentication, authorization, and input validation MUST be enforced at API
+boundaries. Sensitive data MUST be encrypted in transit and protected at rest using
+platform-approved controls. Secrets MUST never be committed to source control and
+MUST be injected through environment configuration in Render. All changes touching
+identity, payments, or customer data MUST include a documented security review.
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+Rationale: Security controls are mandatory for trust, compliance posture, and safe
+commerce operation.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+### V. Observability and Operational Readiness
+Services MUST emit structured logs, core metrics, and health checks required for
+production diagnosis on Render. Deployments MUST include readiness verification,
+rollback instructions, and smoke-test evidence. Performance for core catalog and
+checkout interactions MUST be measured and tracked for regressions before promotion.
+
+Rationale: Operational visibility and release discipline are required to maintain
+uptime and customer experience.
+
+## Technology and Platform Constraints
+
+- Backend MUST use Java Spring Boot.
+- Database MUST use PostgreSQL for transactional records.
+- Frontend MUST use React with Tailwind CSS and MUI.
+- Deployment target MUST be Render for all production workloads.
+- Any proposal to change stack or hosting MUST be treated as a constitutional
+	amendment and approved through Governance.
+
+## Delivery Workflow and Quality Gates
+
+1. Specification MUST define prioritized user stories and measurable acceptance
+   criteria.
+2. Implementation plan MUST pass the Constitution Check before design and before
+   execution.
+3. Tasks MUST include explicit work for testing, security, observability, and Render
+   deployment readiness.
+4. Pull requests MUST include evidence of passing tests, contract compatibility, and
+   release risk notes.
+5. Production deployment MUST be blocked if mandatory checks fail.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- This constitution overrides conflicting repository guidance for delivery decisions.
+- Amendments require: documented proposal, impact analysis, approver sign-off, and
+	migration or adoption plan where relevant.
+- Versioning policy for this constitution follows semantic versioning:
+	- MAJOR for incompatible principle removals or redefinitions.
+	- MINOR for new principles/sections or materially expanded requirements.
+	- PATCH for wording clarifications that do not alter governance intent.
+- Compliance review is required in planning and pull request review. Violations MUST
+	be remediated or explicitly waived with approver rationale before merge.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-04-30 | **Last Amended**: 2026-04-30
