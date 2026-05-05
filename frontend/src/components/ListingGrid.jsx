@@ -6,13 +6,18 @@ import ListingCard from './ListingCard'
  * Grid component that displays listing cards
  * Responsive layout with MUI Grid
  */
-export default function ListingGrid({ listings = [] }) {
+export default function ListingGrid({ listings = [], onEdit, onDelete, onViewDetails }) {
   return (
     <Box sx={{ mb: 5 }}>
       <Grid container spacing={{ xs: 2, md: 3 }}>
         {listings.map(listing => (
           <Grid item xs={12} sm={6} md={4} lg={3} key={listing.id}>
-            <ListingCard listing={listing} />
+            <ListingCard 
+              listing={listing} 
+              onEdit={onEdit} 
+              onDelete={onDelete} 
+              onViewDetails={onViewDetails}
+            />
           </Grid>
         ))}
       </Grid>
@@ -32,4 +37,7 @@ ListingGrid.propTypes = {
       description: PropTypes.string,
     })
   ),
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
+  onViewDetails: PropTypes.func,
 }

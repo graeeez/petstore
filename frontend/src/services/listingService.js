@@ -33,19 +33,55 @@ export const listingService = {
   },
 
   /**
-   * Get a single listing by ID
-   * @param {number} id - Listing ID
-   * @returns {Promise<Object>} API response with listing data
+   * Create a new listing
+   * @param {Object} listingData - The listing data to create
+   * @returns {Promise<Object>} API response with the created listing
    */
-  getListing: async (id) => {
+  createListing: async (listingData) => {
     try {
-      const response = await apiClient.get(`/listings/${id}`)
+      const response = await apiClient.post('/listings', listingData)
       return response.data
     } catch (error) {
       throw {
         status: error.response?.status,
         message: error.response?.data?.message || error.message,
-        traceId: error.response?.data?.traceId,
+        errors: error.response?.data?.errors || [],
+      }
+    }
+  },
+
+  /**
+   * Update an existing listing
+   * @param {number} id - Listing ID
+   * @param {Object} listingData - The listing data to update
+   * @returns {Promise<Object>} API response with the updated listing
+   */
+  updateListing: async (id, listingData) => {
+    try {
+      const response = await apiClient.put(`/listings/${id}`, listingData)
+      return response.data
+    } catch (error) {
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
+        errors: error.response?.data?.errors || [],
+      }
+    }
+  },
+
+  /**
+   * Delete a listing
+   * @param {number} id - Listing ID
+   * @returns {Promise<Object>} API response
+   */
+  deleteListing: async (id) => {
+    try {
+      const response = await apiClient.delete(`/listings/${id}`)
+      return response.data
+    } catch (error) {
+      throw {
+        status: error.response?.status,
+        message: error.response?.data?.message || error.message,
       }
     }
   },

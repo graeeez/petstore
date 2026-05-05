@@ -13,6 +13,8 @@ import {
   Box,
   Divider,
   Typography,
+  Chip,
+  Stack,
 } from '@mui/material'
 import ClearIcon from '@mui/icons-material/Clear'
 
@@ -26,17 +28,13 @@ const CATEGORIES = [
 /**
  * Filter panel component for category, price range, and availability filters
  */
-export default function FilterPanel({ onFiltersChange }) {
+export default function FilterPanel({ onFiltersChange, isCompact = false }) {
   const [category, setCategory] = useState(null)
   const [priceMin, setPriceMin] = useState('')
   const [priceMax, setPriceMax] = useState('')
   const priceChangeTimeoutRef = useRef(null)
 
   const handleCategoryChange = (cat) => {
-    if (priceChangeTimeoutRef.current) {
-      clearTimeout(priceChangeTimeoutRef.current)
-      priceChangeTimeoutRef.current = null
-    }
     const newCategory = category === cat ? null : cat
     setCategory(newCategory)
     emitFilters(newCategory, priceMin, priceMax)
@@ -55,10 +53,6 @@ export default function FilterPanel({ onFiltersChange }) {
   }
 
   const handleClearFilters = () => {
-    if (priceChangeTimeoutRef.current) {
-      clearTimeout(priceChangeTimeoutRef.current)
-      priceChangeTimeoutRef.current = null
-    }
     setCategory(null)
     setPriceMin('')
     setPriceMax('')
@@ -83,25 +77,87 @@ export default function FilterPanel({ onFiltersChange }) {
     }
   }, [])
 
+  if (isCompact) {
+    return (
+      <Stack direction={{ xs: 'column', md: 'row' }} spacing={3} alignItems="center">
+        <Stack direction="row" spacing={1} flexWrap="wrap" justifyContent="center">
+          {CATEGORIES.map(cat => (
+            <Chip
+              key={cat.value}
+              label={cat.label}
+              onClick={() => handleCategoryChange(cat.value)}
+              color={category === cat.value ? 'primary' : 'default'}
+              variant={category === cat.value ? 'contained' : 'outlined'}
+              sx={{ 
+                px: 1,
+                py: 2,
+                fontSize: '0.85rem',
+                borderWidth: 2,
+                '&:hover': { borderWidth: 2 }
+              }}
+            />
+          ))}
+        </Stack>
+        
+        <Divider orientation="vertical" flexItem sx={{ display: { xs: 'none', md: 'block' }, height: 24, alignSelf: 'center' }} />
+        
+        <Stack direction="row" spacing={2} alignItems="center">
+          <TextField
+            type="number"
+            placeholder="Min Price"
+            size="small"
+            value={priceMin}
+            onChange={e => handlePriceChange(e.target.value, priceMax)}
+            sx={{ 
+              width: 120,
+              '& .MuiOutlinedInput-root': { borderRadius: 3 }
+            }}
+          />
+          <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>to</Typography>
+          <TextField
+            type="number"
+            placeholder="Max Price"
+            size="small"
+            value={priceMax}
+            onChange={e => handlePriceChange(priceMin, e.target.value)}
+            sx={{ 
+              width: 120,
+              '& .MuiOutlinedInput-root': { borderRadius: 3 }
+            }}
+          />
+        </Stack>
+        
+        {hasActiveFilters && (
+          <Button 
+            size="small" 
+            onClick={handleClearFilters} 
+            startIcon={<ClearIcon />}
+            sx={{ color: 'text.secondary', '&:hover': { color: 'error.main' } }}
+          >
+            Reset
+          </Button>
+        )}
+      </Stack>
+    )
+  }
+
   return (
     <Card
       sx={{
         width: '100%',
         borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'rgba(45, 90, 61, 0.1)',
-        background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(248,246,241,0.96) 100%)',
-        backdropFilter: 'blur(4px)',
+        border: '1px solid rgba(45, 90, 61, 0.1)',
+        backgroundColor: '#FFFFFF',
         boxShadow: '0 4px 16px rgba(45, 90, 61, 0.08)',
       }}
     >
       <CardHeader
         title="Filters"
         sx={{
-          background: 'linear-gradient(90deg, rgba(45, 90, 61, 0.12) 0%, rgba(212, 160, 23, 0.08) 100%)',
-          borderBottom: '2px solid',
-          borderColor: 'rgba(45, 90, 61, 0.15)',
-          '& .MuiCardHeader-title': { fontWeight: 700, fontSize: '1rem', color: '#2d5a3d' },
+          backgroundColor: 'rgba(45, 90, 61, 0.04)',
+          borderBottom: '1px solid',
+          borderColor: 'rgba(45, 90, 61, 0.1)',
+          '& .MuiCardHeader-title': { fontWeight: 800, fontSize: '1rem', color: '#1f4d31' },
         }}
       />
       <CardContent sx={{ p: 2.5 }}>
@@ -178,4 +234,5 @@ export default function FilterPanel({ onFiltersChange }) {
 
 FilterPanel.propTypes = {
   onFiltersChange: PropTypes.func.isRequired,
+  isCompact: PropTypes.bool,
 }

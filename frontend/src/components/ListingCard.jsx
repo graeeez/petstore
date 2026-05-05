@@ -3,88 +3,52 @@ import { useState } from 'react'
 import {
   Card,
   CardContent,
-  CardActions,
   Typography,
   Button,
   Box,
-  Chip,
 } from '@mui/material'
-import ShoppingCartIcon from '@mui/icons-material/ShoppingCart'
+import EditIcon from '@mui/icons-material/Edit'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 /**
- * Individual listing card component
- * Displays pet image, name, category, price, and availability
+ * Individual listing card component with a sleek, premium aesthetic
  */
-export default function ListingCard({ listing }) {
+export default function ListingCard({ listing, onEdit, onDelete, onViewDetails }) {
   const [imageError, setImageError] = useState(false)
 
-  const categoryColors = {
-    DOGS: '#d4a017',
-    CATS: '#2d5a3d',
-    BIRDS: '#d4a017',
-    FISHES: '#3d7a52',
-  }
-
-  // Get specific image URL for known listings
+  // Get specific image URL for known listings (Restored past links)
   const getListingSpecificImage = () => {
     const specificImages = {
       'Golden Retriever': 'https://images.unsplash.com/photo-1611250282006-4484dd3fba6b?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NHx8Z29sZGVuJTIwcmV0cmlldmVyfGVufDB8fDB8fHww',
-      'Labrador Mix': 'https://images.unsplash.com/photo-1565313753908-7b1da784e4f1?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGFicmFkb3IlMjBwdXBweXxlbnwwfHwwfHx8MA%3Dus',
-      'Amazon Parrot': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbQYhoHblQZuzn4FA2HUtE8paXFldGXy6rOA&s',
+      'Labrador Mix': 'https://images.unsplash.com/photo-1565313753908-7b1da784e4f1?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8bGFicmFkb3IlMjBwdXBweXxlbnwwfHwwfHx8MA%3D%3D',
+      'Amazon Parrot': 'https://images.unsplash.com/photo-1734923647557-5959174e9c2c?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGFtYXpvbiUyMHBhcnJvdHxlbnwwfHwwfHx8MA%3D%3D',
       'Goldfish': 'https://images.unsplash.com/photo-1625369708811-65ebfc5ca632?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8Z29sZGZpc2h8ZW58MHx8MHx8fDA%3D',
       'Siamese Kitten': 'https://images.unsplash.com/photo-1669095658634-2a5d9fae6d64?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8c2lhbWVzZXxlbnwwfHwwfHx8MA%3D%3D',
     }
     return specificImages[listing.name] || null
   }
 
-  // Get placeholder image based on category
   const getCategoryPlaceholder = () => {
     const placeholders = {
-      DOGS: 'https://images.unsplash.com/photo-1633586606144-9a6ba1ecf7e1?w=500&h=190&fit=crop&q=80',
-      CATS: 'https://images.unsplash.com/photo-1595433707802-6b2626ef1c91?w=500&h=190&fit=crop&q=80',
-      BIRDS: 'https://images.unsplash.com/photo-1594749073513-b7ecf1c0c71f?w=500&h=190&fit=crop&q=80',
-      FISHES: 'https://images.unsplash.com/photo-1574158622682-e40e69881006?w=500&h=190&fit=crop&q=80',
+      DOGS: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=800',
+      CATS: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&q=80&w=800',
+      BIRDS: 'https://images.unsplash.com/photo-1444464666168-49d633b86797?auto=format&fit=crop&q=80&w=800',
+      FISHES: 'https://images.unsplash.com/photo-1524704654690-b56c05c78a00?auto=format&fit=crop&q=80&w=800',
     }
     return placeholders[listing.category] || placeholders.DOGS
   }
 
-  // Determine image URL with fallback chain
   const getImageUrl = () => {
-    // First try specific listing image
     const specificImage = getListingSpecificImage()
-    if (specificImage && !imageError) {
-      return specificImage
-    }
-    // Then try database imageUrl
-    if (listing.imageUrl && !imageError) {
-      const url = listing.imageUrl
-      if (url.includes('unsplash.com') && !url.includes('w=')) {
-        return `${url}?w=500&h=190&fit=crop&q=80`
-      }
-      return url
-    }
-    // Finally use category placeholder
+    if (specificImage && !imageError) return specificImage
+    if (listing.imageUrl && !imageError) return listing.imageUrl
     return getCategoryPlaceholder()
   }
 
-  const handleImageError = () => {
-    console.warn(`Image failed to load for listing ${listing.id}:`, {
-      name: listing.name,
-      category: listing.category,
-      databaseUrl: listing.imageUrl,
-      fallbackUrl: getCategoryPlaceholder(),
-    })
-    setImageError(true)
-  }
+  const handleImageError = () => setImageError(true)
 
   const handleViewDetails = () => {
-    // Navigate to detail page (to be implemented)
-    console.log('View details for listing:', listing.id)
-  }
-
-  const handleAddToCart = () => {
-    // Add to cart logic (to be implemented)
-    console.log('Add to cart:', listing.id)
+    onViewDetails(listing)
   }
 
   return (
@@ -93,30 +57,18 @@ export default function ListingCard({ listing }) {
         height: '100%',
         display: 'flex',
         flexDirection: 'column',
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'rgba(45, 90, 61, 0.1)',
+        position: 'relative',
         overflow: 'hidden',
-        boxShadow: '0 4px 16px rgba(45, 90, 61, 0.08)',
-        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-        backgroundColor: '#ffffff',
-        '&:hover': {
-          transform: 'translateY(-8px)',
-          boxShadow: '0 16px 32px rgba(45, 90, 61, 0.15)',
-          borderColor: 'rgba(212, 160, 23, 0.3)',
-        },
       }}
     >
-      {/* Image */}
+      {/* Image with subtle zoom on hover */}
       <Box
         sx={{
+          position: 'relative',
           width: '100%',
-          height: 190,
-          backgroundColor: '#f0f0f0',
+          height: 240,
           overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          backgroundColor: '#F1F5F9',
         }}
       >
         <img
@@ -127,93 +79,130 @@ export default function ListingCard({ listing }) {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            display: 'block',
+            transition: 'transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.05)')}
+          onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
         />
+        
+        {/* Availability Badge with Original Green/Error colors */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 16,
+            left: 16,
+            padding: '6px 12px',
+            borderRadius: '99px',
+            backgroundColor: listing.availability ? 'rgba(45, 90, 61, 0.95)' : 'rgba(239, 44, 44, 0.95)',
+            color: 'white',
+            fontSize: '0.75rem',
+            fontWeight: 800,
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            backdropFilter: 'blur(4px)',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          }}
+        >
+          {listing.availability ? 'Available' : 'Unavailable'}
+        </Box>
       </Box>
 
-      <CardContent sx={{ flexGrow: 1, p: 2.25 }}>
-        {/* Category Chip */}
-        <Chip
-          label={listing.category}
-          size="small"
-          sx={{
+      <CardContent sx={{ flexGrow: 1, p: 3, pb: 1 }}>
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            color: '#d4a017', // Original Gold
+            fontWeight: 800, 
+            textTransform: 'uppercase', 
+            letterSpacing: '0.1em',
             mb: 1,
-            backgroundColor: categoryColors[listing.category] || 'primary.main',
-            color: 'white',
-            fontWeight: 600,
+            display: 'block'
           }}
-        />
+        >
+          {listing.category}
+        </Typography>
 
-        {/* Pet Name */}
-        <Typography variant="h6" sx={{ mb: 0.5 }}>
+        <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: '#1f4d31' }}>
           {listing.name}
         </Typography>
 
-        {/* Availability Status */}
         <Typography
           variant="body2"
+          color="text.secondary"
           sx={{
-            color: listing.availability ? 'success.main' : 'error.main',
-            fontWeight: 'bold',
-            mb: 1,
+            mb: 2,
+            lineHeight: 1.6,
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
           }}
         >
-          {listing.availability ? '✓ Available' : '✗ Unavailable'}
+          {listing.description || 'No description available for this companion.'}
         </Typography>
 
-        {/* Description */}
-        {listing.description && (
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              mb: 1,
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden',
-            }}
-          >
-            {listing.description}
+        <Box sx={{ mt: 'auto', pt: 2, borderTop: '1px solid rgba(45, 90, 61, 0.06)' }}>
+          <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600, display: 'block' }}>
+            Investment
           </Typography>
-        )}
-
-        {/* Price */}
-        <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 1 }}>
-          <Typography variant="h5" sx={{ color: 'primary.main', fontWeight: 700 }}>
-            ${listing.price}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            per pet
+          <Typography variant="h4" sx={{ color: '#2d5a3d', fontWeight: 900 }}>
+            ${Number(listing.price).toLocaleString()}
           </Typography>
         </Box>
       </CardContent>
 
-      {/* Actions */}
-      <CardActions sx={{ gap: 1, px: 2.25, pb: 2.25, pt: 0 }}>
+      {/* Persistent Action Buttons - No Gradients */}
+      <Box sx={{ p: 3, pt: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
         <Button
           fullWidth
           variant="contained"
-          color="secondary"
-          size="small"
-          startIcon={<ShoppingCartIcon />}
-          onClick={handleAddToCart}
-          disabled={!listing.availability}
-          sx={{ textTransform: 'none', fontWeight: 600 }}
-        >
-          Add to Cart
-        </Button>
-        <Button
-          variant="outlined"
           color="primary"
-          size="small"
           onClick={handleViewDetails}
-          sx={{ textTransform: 'none', fontWeight: 600 }}
+          sx={{ 
+            py: 1.5,
+            fontWeight: 800,
+            borderRadius: 2,
+            backgroundColor: '#2d5a3d',
+            '&:hover': { backgroundColor: '#1f4d31' }
+          }}
         >
-          Details
+          View Full Details
         </Button>
-      </CardActions>
+        
+        <Box sx={{ display: 'flex', gap: 1.5 }}>
+          <Button
+            fullWidth
+            variant="outlined"
+            size="small"
+            startIcon={<EditIcon />}
+            onClick={() => onEdit(listing)}
+            sx={{ 
+              borderRadius: 2, 
+              color: '#1f4d31', 
+              borderColor: '#1f4d31',
+              fontWeight: 700,
+              '&:hover': { borderColor: '#2d5a3d', bgcolor: 'rgba(45, 90, 61, 0.04)', borderWidth: 1 } 
+            }}
+          >
+            Edit
+          </Button>
+          <Button
+            fullWidth
+            variant="outlined"
+            size="small"
+            color="error"
+            startIcon={<DeleteIcon />}
+            onClick={() => onDelete(listing.id)}
+            sx={{ 
+              borderRadius: 2, 
+              fontWeight: 700,
+              '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.04)' }
+            }}
+          >
+            Delete
+          </Button>
+        </Box>
+      </Box>
     </Card>
   )
 }
@@ -228,4 +217,7 @@ ListingCard.propTypes = {
     imageUrl: PropTypes.string,
     description: PropTypes.string,
   }).isRequired,
+  onEdit: PropTypes.func,
+  onDelete: PropTypes.func,
+  onViewDetails: PropTypes.func,
 }

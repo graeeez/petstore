@@ -1,60 +1,72 @@
 import PropTypes from 'prop-types'
-import { Typography, Button, Paper } from '@mui/material'
+import { Typography, Button, Box } from '@mui/material'
 import SearchOffIcon from '@mui/icons-material/SearchOff'
 
 /**
- * Empty state component shown when no listings match the current filters
+ * Empty state component with a sleek, minimal aesthetic
  */
-export default function EmptyState({ filters = {} }) {
-  const hasFilters = Object.values(filters).some(v => v !== null && v !== undefined)
-
-  const handleClearFilters = () => {
-    // Trigger filter reset (passed via prop in parent)
-    window.location.reload()
-  }
+export default function EmptyState({ filters = {}, onReset }) {
+  const hasFilters = Object.values(filters).some(v => v !== null && v !== undefined && v !== '')
 
   return (
-    <Paper
+    <Box
       sx={{
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'center',
-        py: 7,
+        py: 12,
         px: 3,
-        borderRadius: 3,
-        backgroundColor: 'grey.50',
-        border: '1px dashed',
-        borderColor: 'divider',
         textAlign: 'center',
       }}
     >
-      <SearchOffIcon sx={{ fontSize: 72, color: 'text.disabled', mb: 1.5 }} />
+      <Box
+        sx={{
+          width: 120,
+          height: 120,
+          borderRadius: '50%',
+          backgroundColor: '#F1F5F9',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          mb: 4,
+          boxShadow: 'inset 0 2px 4px 0 rgba(0, 0, 0, 0.05)',
+        }}
+      >
+        <SearchOffIcon sx={{ fontSize: 60, color: '#94A3B8' }} />
+      </Box>
       
-      <Typography variant="h5" sx={{ mb: 1, fontWeight: 700 }}>
-        {hasFilters ? 'No pets match your filters' : 'No pets available'}
+      <Typography variant="h4" sx={{ mb: 1, fontWeight: 900, color: '#0F172A' }}>
+        {hasFilters ? 'No matches found' : 'Catalogue empty'}
       </Typography>
 
-      <Typography variant="body1" color="text.secondary" sx={{ mb: 3, maxWidth: 440 }}>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 400, lineHeight: 1.6 }}>
         {hasFilters
-          ? 'Try adjusting your filters or clearing them to see all available pets.'
-          : 'There are currently no pets available. Please check back soon!'}
+          ? 'We couldn&apos;t find any companions matching your current selection. Try refining your parameters.'
+          : 'Our collection is currently undergoing maintenance. Please return shortly to discover new companions.'}
       </Typography>
 
       {hasFilters && (
         <Button
-          variant="contained"
+          variant="outlined"
           color="primary"
-          onClick={handleClearFilters}
-          sx={{ textTransform: 'none', fontWeight: 600 }}
+          onClick={onReset}
+          sx={{ 
+            px: 4, 
+            py: 1.5, 
+            borderRadius: 3, 
+            borderWidth: 2,
+            '&:hover': { borderWidth: 2 }
+          }}
         >
-          Clear All Filters
+          Reset Selection
         </Button>
       )}
-    </Paper>
+    </Box>
   )
 }
 
 EmptyState.propTypes = {
   filters: PropTypes.object,
+  onReset: PropTypes.func.isRequired,
 }

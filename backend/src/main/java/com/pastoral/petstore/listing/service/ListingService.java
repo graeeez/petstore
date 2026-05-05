@@ -3,6 +3,7 @@ package com.pastoral.petstore.listing.service;
 import com.pastoral.petstore.common.ListingException;
 import com.pastoral.petstore.listing.model.PetCategory;
 import com.pastoral.petstore.listing.model.PetListing;
+import com.pastoral.petstore.listing.model.PetListingRequest;
 import com.pastoral.petstore.listing.model.PetListingSummary;
 import com.pastoral.petstore.listing.repository.ListingRepository;
 import lombok.RequiredArgsConstructor;
@@ -45,13 +46,14 @@ public class ListingService {
         BigDecimal priceMin,
         BigDecimal priceMax,
         Boolean available,
+        String search,
         String sortBy,
         String sortOrder,
         Integer page,
         Integer limit) {
 
-        log.debug("Fetching listings: category={}, priceMin={}, priceMax={}, available={}, sortBy={}, sortOrder={}, page={}, limit={}",
-            category, priceMin, priceMax, available, sortBy, sortOrder, page, limit);
+        log.debug("Fetching listings: category={}, priceMin={}, priceMax={}, available={}, search={}, sortBy={}, sortOrder={}, page={}, limit={}",
+            category, priceMin, priceMax, available, search, sortBy, sortOrder, page, limit);
 
         // Validate input parameters
         validateFilterParameters(category, priceMin, priceMax, page, limit);
@@ -67,7 +69,7 @@ public class ListingService {
         );
 
         // Build specification for flexible filtering
-        Specification<PetListing> spec = buildSpecification(category, priceMin, priceMax, available);
+        Specification<PetListing> spec = buildSpecification(category, priceMin, priceMax, available, search);
 
         // Execute query
         Page<PetListing> results = listingRepository.findAll(spec, pageable);
@@ -82,14 +84,90 @@ public class ListingService {
     public PetListingSummary getListing(Long id) {
         log.debug("Fetching listing: id={}", id);
 
-        PetListing listing = listingRepository.findByIdAndDeletedAtIsNull(id)
+        PetListing listing = getPetListing(id);
+        return listing.toSummary();
+    }
+
+    /**
+     * Create a new pet listing
+     */
+    @Transactional
+    public PetListingSummary createListing(PetListingRequest request) {
+        log.info("Creating new pet listing: {}", request.getName());
+
+        validateCategory(request.getCategory());
+
+        PetListing listing = PetListing.builder()
+            .name(request.getName())
+            .category(PetCategory.fromString(request.getCategory()))
+            .price(request.getPrice())
+            .availability(request.getAvailability())
+            .description(request.getDescription())
+            .imageUrl(request.getImageUrl())
+            .build();
+
+        PetListing savedListing = listingRepository.save(listing);
+        log.info("Created pet listing with ID: {}", savedListing.getId());
+
+        return savedListing.toSummary();
+    }
+
+    /**
+     * Update an existing pet listing
+     */
+    @Transactional
+    public PetListingSummary updateListing(Long id, PetListingRequest request) {
+        log.info("Updating pet listing ID: {}", id);
+
+        PetListing listing = getPetListing(id);
+        validateCategory(request.getCategory());
+
+        listing.setName(request.getName());
+        listing.setCategory(PetCategory.fromString(request.getCategory()));
+        listing.setPrice(request.getPrice());
+        listing.setAvailability(request.getAvailability());
+        listing.setDescription(request.getDescription());
+        listing.setImageUrl(request.getImageUrl());
+
+        PetListing updatedListing = listingRepository.save(listing);
+        log.info("Updated pet listing ID: {}", updatedListing.getId());
+
+        return updatedListing.toSummary();
+    }
+
+    /**
+     * Delete a pet listing (soft delete)
+     */
+    @Transactional
+    public void deleteListing(Long id) {
+        log.info("Deleting pet listing ID: {}", id);
+
+        PetListing listing = getPetListing(id);
+        listing.softDelete();
+        listingRepository.save(listing);
+
+        log.info("Soft deleted pet listing ID: {}", id);
+    }
+
+    /**
+     * Helper to get a pet listing or throw exception
+     */
+    private PetListing getPetListing(Long id) {
+        return listingRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new ListingException(
                 "Listing not found: " + id,
                 "LISTING_NOT_FOUND",
                 org.springframework.http.HttpStatus.NOT_FOUND
             ));
+    }
 
-        return listing.toSummary();
+    /**
+     * Helper to validate category
+     */
+    private void validateCategory(String category) {
+        if (!PetCategory.isValid(category)) {
+            throw ListingException.invalidCategory(category);
+        }
     }
 
     /**
@@ -97,8 +175,8 @@ public class ListingService {
      */
     private void validateFilterParameters(String category, BigDecimal priceMin, BigDecimal priceMax, Integer page, Integer limit) {
         // Validate category
-        if (category != null && !category.isEmpty() && !PetCategory.isValid(category)) {
-            throw ListingException.invalidCategory(category);
+        if (category != null && !category.isEmpty()) {
+            validateCategory(category);
         }
 
         // Validate price range
@@ -156,7 +234,8 @@ public class ListingService {
         String category,
         BigDecimal priceMin,
         BigDecimal priceMax,
-        Boolean available) {
+        Boolean available,
+        String search) {
 
         return (root, query, cb) -> {
             var predicates = new java.util.ArrayList<>();
@@ -181,6 +260,15 @@ public class ListingService {
 
             if (priceMax != null) {
                 predicates.add(cb.lessThanOrEqualTo(root.get("price"), priceMax));
+            }
+
+            // Search filter (name or description)
+            if (search != null && !search.trim().isEmpty()) {
+                String pattern = "%" + search.trim().toLowerCase() + "%";
+                predicates.add(cb.or(
+                    cb.like(cb.lower(root.get("name")), pattern),
+                    cb.like(cb.lower(root.get("description")), pattern)
+                ));
             }
 
             return cb.and(predicates.toArray(new jakarta.persistence.criteria.Predicate[0]));

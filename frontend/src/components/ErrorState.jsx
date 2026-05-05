@@ -1,53 +1,65 @@
 import PropTypes from 'prop-types'
-import { Box, Alert, AlertTitle, Typography, Button, Paper } from '@mui/material'
+import { Box, Typography, Button } from '@mui/material'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 
 /**
- * Error state component shown when API request fails
+ * Error state component with a sleek, modern aesthetic
  */
-export default function ErrorState({ error }) {
-  const errorMessage = error?.message || 'Failed to load listings'
-  const errorDetails = error?.errors || []
-
-  const handleRetry = () => {
-    window.location.reload()
-  }
-
+export default function ErrorState({ error, onRetry }) {
+  const errorMessage = error?.message || 'Connection interrupted'
+  
   return (
-    <Paper
+    <Box
       sx={{
-        mb: 4,
-        p: 2,
-        borderRadius: 3,
-        border: '1px solid',
-        borderColor: 'divider',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 10,
+        px: 3,
+        textAlign: 'center',
+        backgroundColor: 'rgba(239, 68, 68, 0.02)',
+        borderRadius: 6,
+        border: '1px solid rgba(239, 68, 68, 0.1)',
       }}
     >
-      <Alert severity="error" icon={<ErrorOutlineIcon />} sx={{ borderRadius: 2 }}>
-        <AlertTitle>Error Loading Listings</AlertTitle>
-        <Typography variant="body2" sx={{ mb: 1 }}>
-          {errorMessage}
-        </Typography>
-        {errorDetails.length > 0 && (
-          <Box sx={{ mb: 1, pl: 2 }}>
-            {errorDetails.map((err, idx) => (
-              <Typography key={idx} variant="caption" display="block">
-                • {err.message}
-              </Typography>
-            ))}
-          </Box>
-        )}
-        <Button
-          size="small"
-          variant="outlined"
-          color="error"
-          onClick={handleRetry}
-          sx={{ mt: 1, textTransform: 'none', fontWeight: 600 }}
-        >
-          Retry
-        </Button>
-      </Alert>
-    </Paper>
+      <Box
+        sx={{
+          width: 80,
+          height: 80,
+          borderRadius: 4,
+          backgroundColor: 'rgba(239, 68, 68, 0.1)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          mb: 3,
+        }}
+      >
+        <ErrorOutlineIcon sx={{ fontSize: 40, color: '#EF4444' }} />
+      </Box>
+
+      <Typography variant="h5" sx={{ mb: 1, fontWeight: 800, color: '#991B1B' }}>
+        Service temporarily unavailable
+      </Typography>
+
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 4, maxWidth: 400, lineHeight: 1.6 }}>
+        {errorMessage}. We&apos;re currently experiencing higher than usual traffic or a temporary network issue.
+      </Typography>
+
+      <Button
+        variant="contained"
+        color="error"
+        onClick={onRetry}
+        sx={{ 
+          px: 6, 
+          py: 1.5, 
+          borderRadius: 3,
+          boxShadow: '0 10px 15px -3px rgba(239, 68, 68, 0.2)',
+        }}
+      >
+        Try Again
+      </Button>
+    </Box>
   )
 }
 
@@ -62,4 +74,5 @@ ErrorState.propTypes = {
       })
     ),
   }),
+  onRetry: PropTypes.func.isRequired,
 }

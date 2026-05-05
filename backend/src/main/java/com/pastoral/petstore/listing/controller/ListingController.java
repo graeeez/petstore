@@ -1,8 +1,10 @@
 package com.pastoral.petstore.listing.controller;
 
 import com.pastoral.petstore.common.ApiResponse;
+import com.pastoral.petstore.listing.model.PetListingRequest;
 import com.pastoral.petstore.listing.model.PetListingSummary;
 import com.pastoral.petstore.listing.service.ListingService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,7 +18,7 @@ import java.util.Map;
 
 /**
  * REST controller for pet listing endpoints.
- * Handles GET /pastoral/listings requests for browsing, filtering, and sorting listings.
+ * Handles requests for browsing, filtering, sorting, and managing pet listings.
  */
 @Slf4j
 @RestController
@@ -27,18 +29,8 @@ public class ListingController {
     private final ListingService listingService;
 
     /**
-     * GET /pastoral/listings
+     * GET /listings
      * Fetch listings with optional filtering and pagination
-     *
-     * @param category Filter by pet category (DOGS, CATS, BIRDS, FISHES)
-     * @param priceMin Minimum price filter
-     * @param priceMax Maximum price filter
-     * @param available Filter by availability (default: true)
-     * @param sortBy Sort field: "price" or "createdAt" (default: "price")
-     * @param sortOrder Sort order: "asc" or "desc" (default: "asc")
-     * @param page Page number, 0-indexed (default: 0)
-     * @param limit Page size, 1-100 (default: 20)
-     * @return ApiResponse containing paginated listings
      */
     @GetMapping
     public ResponseEntity<ApiResponse<Map<String, Object>>> getListings(
@@ -46,52 +38,41 @@ public class ListingController {
         @RequestParam(name = "priceMin", required = false) BigDecimal priceMin,
         @RequestParam(name = "priceMax", required = false) BigDecimal priceMax,
         @RequestParam(name = "available", defaultValue = "true") Boolean available,
+        @RequestParam(name = "search", required = false) String search,
         @RequestParam(name = "sortBy", defaultValue = "price") String sortBy,
         @RequestParam(name = "sortOrder", defaultValue = "asc") String sortOrder,
         @RequestParam(name = "page", defaultValue = "0") Integer page,
         @RequestParam(name = "limit", defaultValue = "20") Integer limit) {
 
-        log.info("GET /listings - category={}, priceMin={}, priceMax={}, available={}, sortBy={}, sortOrder={}, page={}, limit={}",
-            category, priceMin, priceMax, available, sortBy, sortOrder, page, limit);
+        log.info("GET /listings - category={}, priceMin={}, priceMax={}, available={}, search={}, sortBy={}, sortOrder={}, page={}, limit={}",
+            category, priceMin, priceMax, available, search, sortBy, sortOrder, page, limit);
 
-        try {
-            // Fetch listings
-            Page<PetListingSummary> results = listingService.getListings(
-                category, priceMin, priceMax, available, sortBy, sortOrder, page, limit);
+        // Fetch listings
+        Page<PetListingSummary> results = listingService.getListings(
+            category, priceMin, priceMax, available, search, sortBy, sortOrder, page, limit);
 
-            // Build response with pagination metadata
-            Map<String, Object> responseData = new HashMap<>();
-            responseData.put("items", results.getContent());
-            responseData.put("pagination", Map.of(
-                "page", results.getNumber(),
-                "limit", results.getSize(),
-                "totalElements", results.getTotalElements(),
-                "totalPages", results.getTotalPages(),
-                "hasMore", results.hasNext()
-            ));
+        // Build response with pagination metadata
+        Map<String, Object> responseData = new HashMap<>();
+        responseData.put("items", results.getContent());
+        responseData.put("pagination", Map.of(
+            "page", results.getNumber(),
+            "limit", results.getSize(),
+            "totalElements", results.getTotalElements(),
+            "totalPages", results.getTotalPages(),
+            "hasMore", results.hasNext()
+        ));
 
-            ApiResponse<Map<String, Object>> response = ApiResponse.success(
-                "Listings retrieved successfully",
-                responseData
-            );
+        ApiResponse<Map<String, Object>> response = ApiResponse.success(
+            "Listings retrieved successfully",
+            responseData
+        );
 
-            log.debug("Returning {} listings from page {} of {}", 
-                results.getNumberOfElements(), results.getNumber(), results.getTotalPages());
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("Error fetching listings", e);
-            throw e;
-        }
+        return ResponseEntity.ok(response);
     }
 
     /**
-     * GET /pastoral/listings/{id}
+     * GET /listings/{id}
      * Fetch a single listing by ID
-     *
-     * @param id Listing ID
-     * @return ApiResponse containing the listing details
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<PetListingSummary>> getListing(@PathVariable Long id) {
@@ -99,6 +80,50 @@ public class ListingController {
 
         PetListingSummary listing = listingService.getListing(id);
         ApiResponse<PetListingSummary> response = ApiResponse.success("Listing retrieved successfully", listing);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * POST /listings
+     * Create a new pet listing
+     */
+    @PostMapping
+    public ResponseEntity<ApiResponse<PetListingSummary>> createListing(@Valid @RequestBody PetListingRequest request) {
+        log.info("POST /listings - creating new listing: {}", request.getName());
+
+        PetListingSummary listing = listingService.createListing(request);
+        ApiResponse<PetListingSummary> response = ApiResponse.success("Listing created successfully", listing);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    /**
+     * PUT /listings/{id}
+     * Update an existing pet listing
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<PetListingSummary>> updateListing(
+        @PathVariable Long id,
+        @Valid @RequestBody PetListingRequest request) {
+        log.info("PUT /listings/{} - updating listing", id);
+
+        PetListingSummary listing = listingService.updateListing(id, request);
+        ApiResponse<PetListingSummary> response = ApiResponse.success("Listing updated successfully", listing);
+
+        return ResponseEntity.ok(response);
+    }
+
+    /**
+     * DELETE /listings/{id}
+     * Delete a pet listing (soft delete)
+     */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteListing(@PathVariable Long id) {
+        log.info("DELETE /listings/{} - deleting listing", id);
+
+        listingService.deleteListing(id);
+        ApiResponse<Void> response = ApiResponse.success("Listing deleted successfully", null);
 
         return ResponseEntity.ok(response);
     }
