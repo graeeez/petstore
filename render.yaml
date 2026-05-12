@@ -1,4 +1,5 @@
 services:
+  # Backend Web Service (Counts as your 1 free web service)
   - type: web
     name: petstore-backend
     runtime: docker
@@ -10,9 +11,7 @@ services:
         value: "-Xmx384m -Xms256m"
       - key: NODE_ENV
         value: production
-      # Link to the database to get connection details
-
-
+      # Database connection details linked from the petstore_prod database
       - key: DB_HOST
         fromDatabase:
           name: petstore_prod
@@ -34,6 +33,7 @@ services:
           name: petstore_prod
           property: database
 
+  # Frontend Static Site (Always free, does not count against web service limit)
   - type: web
     name: petstore-frontend
     runtime: static
@@ -47,9 +47,9 @@ services:
     routes:
       - type: rewrite
         source: /pastoral/*
+        # Use the external URL to ensure browser connectivity
         destination: https://petstore-backend.onrender.com/pastoral/*
 
 databases:
   - name: petstore_prod
     plan: free
-

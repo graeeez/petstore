@@ -2,23 +2,24 @@
 FROM maven:3.9.15-eclipse-temurin-26 AS build
 WORKDIR /app
 
-# Copy the backend source code
-COPY backend/pom.xml backend/
-COPY backend/src backend/src/
+# Copy only the pom.xml first to leverage Docker cache
+COPY backend/pom.xml .
+RUN mvn dependency:go-offline -B
 
-# Build the application
-RUN cd backend && mvn clean package -DskipTests
+# Copy the source code and build
+COPY backend/src ./src
+RUN mvn clean package -DskipTests -B
 
 # Run stage
 FROM eclipse-temurin:26-jre-jammy
 WORKDIR /app
 
-# Copy the built jar from the build stage
-COPY --from=build /app/backend/target/petstore-backend-1.0.0.jar app.jar
+# Copy the built jar. The wildcard helps if the version changes.
+COPY --from=build /app/target/petstore-backend-*.jar app.jar
 
-# Set environment variables
+# Standard Render port is 10000, but we'll use 8080 as configured in application.yml
 ENV PORT=8080
 EXPOSE 8080
 
-# Run the application
+# Run the application with the render profile
 ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=render"]
