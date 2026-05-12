@@ -20,7 +20,8 @@ export const listingService = {
    */
   getListings: async (params = {}) => {
     try {
-      const response = await apiClient.get('/listings', { params })
+      // Use relative path '' to avoid '/listings/listings' because the axios instance already points to '/listings'
+      const response = await apiClient.get('', { params })
       return response.data
     } catch (error) {
       throw {

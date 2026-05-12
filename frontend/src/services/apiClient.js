@@ -5,7 +5,7 @@ import axios from 'axios'
  * Base URL points to /pastoral context path on backend server.
  */
 const apiClient = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || '/pastoral',
+  baseURL: (import.meta.env.VITE_API_BASE_URL || '/pastoral') + '/listings',
   timeout: 60000,
   headers: {
     'Content-Type': 'application/json',
