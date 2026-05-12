@@ -2,14 +2,16 @@ services:
   - type: web
     name: petstore-backend
     runtime: docker
+    plan: free
     envVars:
       - key: PORT
         value: 8080
       - key: JAVA_OPTS
-        value: "-Xmx512m -Xms256m"
+        value: "-Xmx384m -Xms256m"
       - key: NODE_ENV
         value: production
       # Link to the database to get connection details
+
 
       - key: DB_HOST
         fromDatabase:
