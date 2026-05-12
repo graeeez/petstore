@@ -34,8 +34,9 @@ services:
           name: petstore_prod
           property: database
 
-  - type: static
+  - type: web
     name: petstore-frontend
+    runtime: static
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
     envVars:
