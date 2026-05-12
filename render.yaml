@@ -50,10 +50,5 @@ services:
 
 databases:
   - name: petstore_prod
-    engine: postgres
-    version: 14
-    plan: starter
-    # Allow internal connections. ipAllowList: [] is restrictive for external access
-    # but fine for internal service communication.
-    ipAllowList: []
+    plan: free
 
