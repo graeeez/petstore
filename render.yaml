@@ -37,8 +37,9 @@ services:
   - type: web
     name: petstore-frontend
     runtime: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    rootDirectory: frontend
+    buildCommand: npm install --include=dev && npm run build
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
         value: /pastoral
