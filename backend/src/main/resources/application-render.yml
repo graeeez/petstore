@@ -24,6 +24,15 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
 
+  # CORS Configuration for frontend
+  mvc:
+    cors:
+      path-pattern: "/pastoral/**"
+      allowed-origins: "https://petstore-frontend-wl08.onrender.com"
+      allowed-methods: "*"
+      allowed-headers: "*"
+      max-age: 3600
+
 server:
   port: ${PORT:8080}
   servlet:
