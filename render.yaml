@@ -1,9 +1,7 @@
 services:
   - type: web
     name: petstore-backend
-    runtime: java
-    buildCommand: cd backend && mvn clean package -DskipTests
-    startCommand: java -jar backend/target/petstore-backend-1.0.0.jar --spring.profiles.active=render
+    runtime: docker
     envVars:
       - key: PORT
         value: 8080
@@ -12,6 +10,7 @@ services:
       - key: NODE_ENV
         value: production
       # Link to the database to get connection details
+
       - key: DB_HOST
         fromDatabase:
           name: petstore_prod
