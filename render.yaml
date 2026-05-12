@@ -46,7 +46,7 @@ services:
     routes:
       - type: rewrite
         source: /pastoral/*
-        destination: https://petstore-backend.onrender.com/pastoral/*
+        destination: https://petstore-backend-3fhj.onrender.com/pastoral/*
 
 
 databases:
