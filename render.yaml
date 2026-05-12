@@ -37,20 +37,16 @@ services:
   - type: web
     name: petstore-frontend
     runtime: static
-    buildCommand: npm install && npm run build
-    # Set the base directory for the frontend build
-    rootDirectory: frontend
-    staticPublishPath: dist
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_BASE_URL
         value: /pastoral
-      - key: NODE_ENV
-        value: production
     routes:
       - type: rewrite
         source: /pastoral/*
-        # Use the internal service name if possible, or keep external for simplicity
         destination: https://petstore-backend.onrender.com/pastoral/*
+
 
 databases:
   - name: petstore_prod
