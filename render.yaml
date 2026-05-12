@@ -3,37 +3,58 @@ services:
     name: petstore-backend
     runtime: java
     buildCommand: cd backend && mvn clean package -DskipTests
-    startCommand: cd backend && java -jar target/petstore-backend-1.0.0.jar --spring.profiles.active=render
+    startCommand: java -jar backend/target/petstore-backend-1.0.0.jar --spring.profiles.active=render
     envVars:
-      - key: DATABASE_URL
-        scope: build,runtime
-        value: ${DATABASE_URL}
       - key: PORT
-        scope: build,runtime
         value: 8080
       - key: JAVA_OPTS
-        scope: build,runtime
         value: "-Xmx512m -Xms256m"
+      - key: NODE_ENV
+        value: production
+      # Link to the database to get connection details
+      - key: DB_HOST
+        fromDatabase:
+          name: petstore_prod
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: petstore_prod
+          property: port
+      - key: DB_USER
+        fromDatabase:
+          name: petstore_prod
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: petstore_prod
+          property: password
+      - key: DB_NAME
+        fromDatabase:
+          name: petstore_prod
+          property: database
 
-  - type: web
+  - type: static_site
     name: petstore-frontend
     runtime: node
     buildCommand: cd frontend && npm install && npm run build
-    startCommand: npm serve dist
-    staticPublishPath: dist
+    staticPublishPath: frontend/dist
     envVars:
       - key: VITE_API_BASE_URL
-        scope: build
         value: /pastoral
+      - key: NODE_ENV
+        value: production
+    routes:
+      - type: rewrite
+        source: /pastoral/*
+        # Replace with your actual backend URL after deployment if different
+        destination: https://petstore-backend.onrender.com/pastoral/*
 
 databases:
   - name: petstore_prod
     engine: postgres
     version: 14
     plan: starter
+    # Allow internal connections. ipAllowList: [] is restrictive for external access
+    # but fine for internal service communication.
     ipAllowList: []
 
-envVars:
-  - key: NODE_ENV
-    scope: build,runtime
-    value: production
