@@ -42,7 +42,7 @@ services:
     staticPublishPath: dist
     envVars:
       - key: VITE_API_BASE_URL
-        value: /pastoral
+        value: https://petstore-backend-3fhj.onrender.com/pastoral
     routes:
       - type: rewrite
         source: /pastoral/*
