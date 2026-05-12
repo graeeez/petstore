@@ -6,7 +6,7 @@ import axios from 'axios'
  */
 const apiClient = axios.create({
   baseURL: '/pastoral',
-  timeout: 10000,
+  timeout: 60000, // Increased to 60s for Render cold starts
   headers: {
     'Content-Type': 'application/json',
   },
