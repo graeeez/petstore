@@ -24,7 +24,9 @@ spring:
     enabled: true
     locations: classpath:db/migration
     out-of-order: false
-  
+    baseline-on-migrate: true
+    baseline-version: 0
+
   # MVC Configuration
   servlet:
     multipart:
@@ -67,3 +69,4 @@ logging:
     com.pastoral.petstore: DEBUG
     org.springframework.web: DEBUG
     org.hibernate.SQL: DEBUG
+    org.flywaydb: DEBUG
